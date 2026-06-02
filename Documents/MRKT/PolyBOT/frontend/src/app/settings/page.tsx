@@ -7,9 +7,9 @@ import { fetcher, post } from "@/lib/api";
 interface StrategyDetail {
   name: string;
   automation_level: string;
-  min_confidence: float;
-  max_auto_size: float;
-  budget: float;
+  min_confidence: number;
+  max_auto_size: number;
+  budget: number;
   enabled: boolean;
   positions_count: number;
   today_pnl: number;
