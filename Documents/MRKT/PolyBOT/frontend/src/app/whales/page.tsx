@@ -51,9 +51,9 @@ export default function WhalesPage() {
             </div>
             {w.metrics && (
               <div className="mt-2 text-xs text-slate-500">
-                Win rate: {(w.metrics.win_rate * 100).toFixed(0)}% |
-                Total bets: {w.metrics.total_bets} |
-                Calibration: {(w.metrics.calibration * 100).toFixed(0)}%
+                Win rate: {((w.metrics as any).win_rate ?? 0 * 100).toFixed(0)}% |
+                Total bets: {(w.metrics as any).total_bets ?? 0} |
+                Calibration: {((w.metrics as any).calibration ?? 0 * 100).toFixed(0)}%
               </div>
             )}
           </div>
