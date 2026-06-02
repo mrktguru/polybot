@@ -16,7 +16,12 @@ from app.execution.types import OrderBook, OrderRequest, OrderSide, OrderType
 from app.risk.allocator import CapitalAllocator
 from app.risk.engine import RiskEngine
 from app.strategies.base import Signal, SignalDirection
+from app.strategies.cross_market import CrossMarketCorrelation
 from app.strategies.market_making import MarketMaking
+from app.strategies.resolution_arb import ResolutionArbitrage
+from app.strategies.sentiment_divergence import SentimentDivergence
+from app.strategies.volatility_harvest import VolatilityHarvesting
+from app.strategies.whale_copying import WhaleCopying
 
 log = get_logger(__name__)
 
@@ -31,7 +36,21 @@ class StrategyManager:
 
         self.strategies = {
             "market_making": MarketMaking(self.budgets.get("market_making", 0.0)),
-            # Other strategies are registered in later phases (C.2–C.6).
+            "cross_market_corr": CrossMarketCorrelation(
+                self.budgets.get("cross_market_corr", 0.0)
+            ),
+            "resolution_arb": ResolutionArbitrage(
+                self.budgets.get("resolution_arb", 0.0)
+            ),
+            "volatility_harvesting": VolatilityHarvesting(
+                self.budgets.get("volatility_harvesting", 0.0)
+            ),
+            "whale_copying": WhaleCopying(
+                self.budgets.get("whale_copying", 0.0)
+            ),
+            "sentiment_divergence": SentimentDivergence(
+                self.budgets.get("sentiment_divergence", 0.0)
+            ),
         }
 
     # ── signal handling ────────────────────────────────────

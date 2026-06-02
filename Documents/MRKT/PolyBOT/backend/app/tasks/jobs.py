@@ -1,9 +1,4 @@
-"""Celery task implementations.
-
-Phase 1 implements the Market Making loop and circuit breakers concretely.
-Strategies from later phases (C.2–C.6) are registered as stubs so the beat
-schedule is valid and they can be filled in incrementally.
-"""
+"""Celery task implementations — all 6 strategies fully wired."""
 
 from __future__ import annotations
 
@@ -41,6 +36,71 @@ def price_snapshot() -> dict:
     return {"snapshots": n}
 
 
+# ── Cross-Market Correlation ───────────────────────────────
+@celery_app.task(name="tasks.correlation_scan")
+def correlation_scan() -> dict:
+    """Scan all markets for cross-market correlation violations."""
+    from app.services.cross_market_service import run_correlation_scan
+
+    result = run_correlation_scan()
+    log.info("correlation_scan_done", signals=len(result.get("signals", [])))
+    return result
+
+
+# ── Resolution Arbitrage ───────────────────────────────────
+@celery_app.task(name="tasks.resolution_arb_poll")
+def resolution_arb_poll() -> dict:
+    """Poll all data feeds and check for resolution arbitrage opportunities."""
+    from app.services.resolution_arb_service import poll_all_feeds
+
+    result = poll_all_feeds()
+    log.info("resolution_arb_poll_done", signals=result.get("signals_found", 0))
+    return result
+
+
+# ── Volatility Harvesting ──────────────────────────────────
+@celery_app.task(name="tasks.vh_spike_detect")
+def vh_spike_detect() -> dict:
+    """Detect price spikes for volatility harvesting opportunities."""
+    from app.services.vh_service import detect_spikes
+
+    result = detect_spikes()
+    log.info("vh_spike_detect_done", signals=len(result.get("signals", [])))
+    return result
+
+
+@celery_app.task(name="tasks.vh_position_monitor")
+def vh_position_monitor() -> dict:
+    """Monitor open VH positions for take-profit and stop-loss."""
+    from app.services.vh_service import monitor_positions
+
+    actions = monitor_positions()
+    log.info("vh_position_monitor_done", actions=len(actions))
+    return {"actions": actions}
+
+
+# ── Whale Copying ──────────────────────────────────────────
+@celery_app.task(name="tasks.whale_monitor")
+def whale_monitor() -> dict:
+    """Monitor on-chain transactions for whale activity."""
+    from app.services.whale_service import monitor_whales
+
+    result = monitor_whales()
+    log.info("whale_monitor_done", alerts=len(result.get("signals", [])))
+    return result
+
+
+# ── Sentiment Divergence ───────────────────────────────────
+@celery_app.task(name="tasks.sentiment_scan")
+def sentiment_scan() -> dict:
+    """Scan external sources for sentiment divergences vs Polymarket."""
+    from app.services.sentiment_service import run_sentiment_scan
+
+    result = run_sentiment_scan()
+    log.info("sentiment_scan_done", signals=len(result.get("signals", [])))
+    return result
+
+
 # ── General ─────────────────────────────────────────────────
 @celery_app.task(name="tasks.check_circuit_breakers")
 def check_circuit_breakers() -> dict:
@@ -55,40 +115,3 @@ def daily_report() -> dict:
     from app.services.report_service import build_daily_report
 
     return build_daily_report()
-
-
-# ── Later-phase stubs (C.2–C.6) ─────────────────────────────
-@celery_app.task(name="tasks.correlation_scan")
-def correlation_scan() -> dict:
-    log.debug("correlation_scan_stub")
-    return {"status": "not_implemented"}
-
-
-@celery_app.task(name="tasks.resolution_arb_poll")
-def resolution_arb_poll() -> dict:
-    log.debug("resolution_arb_poll_stub")
-    return {"status": "not_implemented"}
-
-
-@celery_app.task(name="tasks.vh_spike_detect")
-def vh_spike_detect() -> dict:
-    log.debug("vh_spike_detect_stub")
-    return {"status": "not_implemented"}
-
-
-@celery_app.task(name="tasks.vh_position_monitor")
-def vh_position_monitor() -> dict:
-    log.debug("vh_position_monitor_stub")
-    return {"status": "not_implemented"}
-
-
-@celery_app.task(name="tasks.whale_monitor")
-def whale_monitor() -> dict:
-    log.debug("whale_monitor_stub")
-    return {"status": "not_implemented"}
-
-
-@celery_app.task(name="tasks.sentiment_scan")
-def sentiment_scan() -> dict:
-    log.debug("sentiment_scan_stub")
-    return {"status": "not_implemented"}
