@@ -11,7 +11,13 @@ const NAV = [
   ["Overview", "/"],
   ["Strategies", "/strategies"],
   ["Signals", "/signals"],
+  ["Positions", "/positions"],
+  ["Markets", "/markets"],
+  ["Whales", "/whales"],
+  ["Backtest", "/backtest"],
   ["Risk", "/risk"],
+  ["Logs", "/logs"],
+  ["Settings", "/settings"],
 ];
 
 export default function RootLayout({

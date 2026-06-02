@@ -51,3 +51,40 @@ export interface SignalOut {
   reasoning: string;
   status: string;
 }
+
+export interface PositionOut {
+  id: number;
+  strategy: string;
+  market_id: string;
+  side: string;
+  size: number;
+  entry_price: number;
+  status: string;
+  realized_pnl: number;
+  unrealized_pnl: number;
+}
+
+export interface WhaleAlert {
+  wallet: string;
+  market_id: string;
+  market_title: string;
+  side: string;
+  usd_value: number;
+  metrics: Record<string, unknown>;
+  is_smart_money: boolean;
+  copy_size: number;
+}
+
+export interface BacktestResult {
+  strategy_name: string;
+  start_equity: number;
+  end_equity: number;
+  max_drawdown: number;
+  sharpe: number;
+  sortino: number;
+  win_rate: number;
+  profit_factor: number;
+  total_fees: number;
+  signals_executed: number;
+  execution_time_ms: number;
+}
